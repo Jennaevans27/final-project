@@ -1,6 +1,6 @@
 ---
 title: "Project proposal"
-author: "Your name"
+author: "Jenna Evans"
 output: github_document
 ---
 
@@ -8,16 +8,28 @@ output: github_document
 library(tidyverse)
 library(broom)
 ```
-
+```{r} 
+install.packages("tidytuesdayR")
+``` 
 ## 1. Introduction
 
-
+For this project I am asking the question of how do different movie genres impact box office ratings during the summer movie season, specifically movies with the word "Summer" in it? Using `summer_movie_genres` and `summer_movies` from the TidyTuesday Project. The dataset includes variables such as genre classification, movie title, how long the movie is, the year it came out, average rating and the number of votes on IMDb. This research question can help provide insights into how different genres perform during the summer movie season and the factors influencing box office success.  
 
 ## 2. Data
 
+```{r} 
+tuesdata <- tidytuesdayR::tt_load('2024-07-30')
+
+summer_movie_genres <- tuesdata$summer_movie_genres
+summer_movies <- tuesdata$summer_movies
+
+glimpse(summer_movies)
+``` 
 
 
 ## 3. Data analysis plan
+
+The outcome or response (Y) variables will be the ratings of the movies. the predictor or explanatory (x) variables will be the genre, release year, title, and length of the movies. Summary statistics such as mean, median, standard deviation, and distribution plots will be used to understand the dataset better, along side of visualizations, including histograms, scatter plots, and boxplots, can be used to identify trends, and relationships between the variables, which can be used to answer the question. Methods like regression analysis may help with answering my question. Key statistical results needed may be, average ratings by genre, percentage differences, and trend comparisons. 
 
 
 
