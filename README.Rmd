@@ -1,39 +1,105 @@
 ---
-title: Project title
-author: by your name
+title: Do Movie Genres Impact Ratings of Summer Movies? 
+author: Jenna Evans 
 output: github_document
 ---
 
 ## Summary
 
-Write-up of your project and findings go here. 
-Think of this as the text of your presentation. 
-The length should be roughly 5 minutes when read out loud.
-Although pacing varies, a 5-minute speech is roughly 750 words. 
-To use the word count addin, select the text you want to count the words of (probably this is the 
-Summary section of this document, go to Addins, and select the `Word count` addin).
-This addin counts words using two different algorithms, but the results should be similar and as long as you're in the ballpark of 750 words, you're good! 
-The addin will ignore code chunks and only count the words in prose.
+The summer movie season is often a highly anticipated period for the film industry, marked by blockbuster releases, high audience turnout, and significant box office competition. For this project, I investigate the question: How do different movie genres impact box office ratings during the summer movie season, specifically for movies with the word "Summer" in the title? This analysis is to understand whether certain genres are more successful than others, based on the average IMDb ratings, and to explore patterns that may help explain what types of summer movies audiences rate most highly.
 
-You can also load your data here and present any analysis results / plots, but I strongly urge you to keep that to a minimum (maybe only the most important graphic, if you have one you can choose). 
-And make sure to hide your code with  `echo = FALSE` unless the point you are trying to make is about the code itself.
-Your results with proper output and graphics go in your presentation, this space is for a brief summary of your project.
+The dataset for this project comes from the TidyTuesday Project, specifically the release on July 30, 2024, which includes two datasets: summer_movies and summer_movie_genres. However, the summer_movies dataset already includes all relevant variables, including genres, titles, release year, average ratings, and number of IMDb votes. Therefore, I use this dataset exclusively in the analysis. 
+To evaluate how genres impact movie ratings, I grouped the data by genre and calculated several descriptive statistics: average rating, median rating, number of films, and average movie length. This approach allowed me to determine which genres tend to perform best and how consistent those ratings are. The top-performing genres by average IMDb rating were:Drama: High average ratings and a relatively large number of films. Documentary: Fewer films, but consistently well-rated. Romance: Also showed strong average performance. However, Comedy and Horror genres had lower average ratings, with more variability in their scores. The hightes rating was a Talk-show film, however this can be consider as an outlier as there is only one film with summer in the name. Horror and comedy genres also appeared more frequently in the dataset, suggesting they are commonly produced but may not always be well-received by audiences.
+
+To visualize these differences more clearly, I created a boxplot of IMDb ratings by genre. This helped illustrate not just the average ratings, but also the spread and distribution of ratings within each genre.
+
+The boxplot revealed that Drama and Romance movies have relatively tight distributions clustered near the upper end of the rating scale, indicating audience preference for these genres during the summer. In contrast, Horror and Comedy genres showed a wider spread, suggesting more mixed reception. Some outliers were present in most genres, especially among less common types like Fantasy or Animation, but these did not significantly affect the overall patterns.
+
+
+The results suggest that genre does have a noticeable impact on movie ratings for summer-themed films. Films in the Drama and Documentary categories tend to receive higher ratings from audiences, possibly because these genres often focus on more serious or meaningful subject matter, even within a season known for entertainment driven releases. Meanwhile, Comedy and Horror, while more common, show greater variability and lower average scores. This might reflect their reliance on subjective humor or genre tropes that don't appeal to all viewers.
+
+Interestingly, movie length did not show a strong linear relationship with rating in the visual analysis, although longer movies slightly trended toward higher scores. This could be because longer movies may allow for more character development or plot depth, particularly in genres like Drama. 
+
+To explore whether the release year of a movie has any effect on its audience rating, a correlation test and linear regression analysis were conducted. The results showed a slight negative correlation between the year a movie was released and its IMDb rating, suggesting that more recent summer-themed movies may be receiving slightly lower ratings compared to older ones. While the relationship was not particularly strong, the downward trend was statistically significant. This could indicate that audiences are either more critical of newer releases, or that nostalgic value contributes to higher ratings for older films. A scatterplot with a fitted regression line supported this trend, showing a gradual decline in average ratings over time. Although the effect size was small, the findings offer insight into how audience reception of summer-themed movies has subtly shifted over the years. 
+
+ The combination of summary statistics and data visualizations provides strong support for answering the  question in a simple and interpretable way. The results are sufficient to conclude that certain genres are indeed rated more favorably than others in the context of summer movies. 
+By analyzing IMDb ratings for movies with "Summer" in the title, we find that genre is a key factor influencing reception, with Drama and Documentary films generally outperforming others. These findings may be useful for filmmakers, marketers, or data analysts interested in seasonal trends and audience tastes.
+
+For future research, additional factors such as box office revenue, star power, or streaming release strategies could be incorporated to provide a more comprehensive view of summer movie success.
+
+
+
+
 
 ```{r load-data, echo = FALSE}
-# load data here, if you like
+library(tidyverse)
+library(broom)
 ```
+```{r} 
+install.packages("tidytuesdayR")
+``` 
+```{r} 
+tuesdata <- tidytuesdayR::tt_load('2024-07-30')
+
+summer_movie_genres <- tuesdata$summer_movie_genres
+summer_movies <- tuesdata$summer_movies
+
+glimpse(summer_movies)
+```
+```{r} 
+movies <- summer_movies %>%
+  drop_na(average_rating, genres) %>%
+  separate_rows(genres, sep = ",")
+```
+```{r} 
+genre_summary <- movies %>%
+  filter(!is.na(length), !is.na(num_votes)) %>%  
+  group_by(genres) %>%
+  summarise(
+    count = n(),
+    mean_rating = mean(average_rating, na.rm = TRUE),
+    median_rating = median(average_rating, na.rm = TRUE),
+    sd_rating = sd(average_rating, na.rm = TRUE),
+    mean_length = mean(length, na.rm = TRUE),
+    mean_votes = mean(num_votes, na.rm = TRUE)
+  ) %>%
+  arrange(desc(mean_rating))
+
+print(genre_summary)
+```
+```{r} 
+ggplot(movies, aes(x = fct_reorder(genres, average_rating), y = average_rating, fill = genres)) +
+  geom_boxplot(show.legend = FALSE) +
+  coord_flip() +
+  theme_minimal() +
+  labs(
+    title = "IMDb Ratings by Genre (Summer Movies)",
+    x = "Genre",
+    y = "Average Rating"
+  )
+```
+```{r} 
+ggplot(movies, aes(x = year, y = average_rating)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(method = "lm", color = "blue") +
+  theme_minimal() +
+  labs(
+    title = "IMDb Rating vs. Release Year",
+    x = "Year",
+    y = "Average Rating"
+  )
+```
+
 
 ## Presentation
 
-My presentation can be found [here](presentation/presentation.html).
+My presentation can be found [here](presentation.html).
 
 ## Data 
 
-Include a citation for your data here. 
-See http://libraryguides.vu.edu.au/c.php?g=386501&p=4347840 for guidance on proper citation for datasets. 
-If you got your data off the web, make sure to note the retrieval date.
+tuesdata <- tidytuesdayR::tt_load('2024-07-30') 
 
 ## References
 
-List any references here. You should, at a minimum, list your data source.
+Harmon J. (2024). Summer_movies. https://github.com/rfordatascience/tidytuesday/blob/main/data/2024/2024-07-30/readme.md 
 
